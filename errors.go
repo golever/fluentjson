@@ -6,8 +6,8 @@ import (
 )
 
 var (
-	IndexOutOfRangeError = errors.New("index out of range")
-	ValueNotNumberError  = errors.New("value is not number")
+	ErrIndexOutOfRange  = errors.New("index out of range")
+	ErrValueIsNotNumber = errors.New("value is not number")
 )
 
 type KeyNotFoundError struct {

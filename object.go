@@ -18,7 +18,6 @@ func (obj Object) Copy() Object {
 }
 
 func (obj Object) PutValue(k string, v interface{}) Object {
-	// change struct to map
 	obj[k] = v
 	return obj
 }
@@ -71,19 +70,29 @@ func (obj Object) getObject(k string) (Object, error) {
 	case map[string]interface{}:
 		return v.(map[string]interface{}), nil
 	}
-	return nil, errors.New(fmt.Sprintf("Casting error. Interface is %s, not fluntjson.object", reflect.TypeOf(v)))
+	return nil, errors.New(fmt.Sprintf("Casting error. Interface is %s, not fluentjson.Object", reflect.TypeOf(v)))
 }
 
 func (obj Object) getArray(k string) (interface{}, error) {
-	return obj, nil
+	v, ok := obj[k]
+	if !ok {
+		return Object{}, nil
+	}
+	switch v.(type) {
+	case Array:
+		return v.(Array), nil
+	case []interface{}:
+		return v.([]interface{}), nil
+	}
+	return nil, errors.New(fmt.Sprintf("Casting error. Interface is %s, not fluentjson.Array", reflect.TypeOf(v)))
 }
 
-func (obj Object) Size() int {
+func (obj Object) Len() int {
 	return len(obj)
 }
 
 func (obj Object) IsEmpty() bool {
-	return obj.Size() == 0
+	return obj.Len() == 0
 }
 
 func (obj Object) Contains(k string) bool {
