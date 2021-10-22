@@ -2,7 +2,9 @@ package fluentjson
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"reflect"
 )
 
 type Array []interface{}
@@ -21,19 +23,23 @@ func (arr Array) AddNil() Array {
 }
 
 func (arr Array) Set(idx int, v interface{}) Array {
-	//check idx
+	if idx >= arr.Len() && idx < 0 {
+		return arr
+	}
+	arr[idx] = v
 	return arr
 }
 
 func (arr Array) SetNil(idx int) Array {
-	//check idx
-	return arr
+	var v interface{}
+	return arr.Set(idx, v)
 }
 
 func (arr Array) Remove(idx int) Array {
-	//check idx
-
-	return arr
+	if idx >= arr.Len() && idx < 0 {
+		return arr
+	}
+	return append(arr[:idx], arr[idx+1:])
 }
 
 func (arr Array) Copy() Array {
@@ -46,14 +52,13 @@ func (arr Array) getValue(idx int) (interface{}, error) {
 	if idx >= arr.Len() && idx < 0 {
 		return nil, ErrIndexOutOfRange
 	}
-	v := arr[idx-1 : idx]
-	return v, nil
+	return arr[idx], nil
 }
 
-func (arr Array) getString(idx int) (interface{}, error) {
+func (arr Array) getString(idx int) (string, error) {
 	v, err := arr.getValue(idx)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	return fmt.Sprintf("%v", v), nil
 }
@@ -78,12 +83,32 @@ func (arr Array) getTime(idx int) (interface{}, error) {
 	return arr, nil
 }
 
-func (arr Array) getObject(idx int) (interface{}, error) {
-	return arr, nil
+func (arr Array) getObject(idx int) (Object, error) {
+	v, err := arr.getValue(idx)
+	if err != nil {
+		return nil, err
+	}
+	switch v.(type) {
+	case Object:
+		return v.(Object), nil
+	case map[string]interface{}:
+		return v.(map[string]interface{}), nil
+	}
+	return nil, errors.New(fmt.Sprintf("Casting error. Interface is %s, not fluentjson.Object", reflect.TypeOf(v)))
 }
 
-func (arr Array) getArray(idx int) (interface{}, error) {
-	return arr, nil
+func (arr Array) getArray(idx int) (Array, error) {
+	v, err := arr.getValue(idx)
+	if err != nil {
+		return nil, err
+	}
+	switch v.(type) {
+	case Array:
+		return v.(Array), nil
+	case []interface{}:
+		return v.([]interface{}), nil
+	}
+	return nil, errors.New(fmt.Sprintf("Casting error. Interface is %s, not fluentjson.Array", reflect.TypeOf(v)))
 }
 
 func (arr Array) Len() int {

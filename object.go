@@ -73,10 +73,10 @@ func (obj Object) getObject(k string) (Object, error) {
 	return nil, errors.New(fmt.Sprintf("Casting error. Interface is %s, not fluentjson.Object", reflect.TypeOf(v)))
 }
 
-func (obj Object) getArray(k string) (interface{}, error) {
+func (obj Object) getArray(k string) (Array, error) {
 	v, ok := obj[k]
 	if !ok {
-		return Object{}, nil
+		return Array{}, nil
 	}
 	switch v.(type) {
 	case Array:
