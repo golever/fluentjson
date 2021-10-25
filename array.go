@@ -1,7 +1,6 @@
 package fluentjson
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -117,13 +116,4 @@ func (arr Array) Len() int {
 
 func (arr Array) IsEmpty() bool {
 	return arr.Len() == 0
-}
-
-func (arr Array) Values() []interface{} {
-	return arr
-}
-
-func (arr Array) String() string {
-	b, _ := json.Marshal(arr)
-	return string(b)
 }

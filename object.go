@@ -1,7 +1,6 @@
 package fluentjson
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -98,13 +97,4 @@ func (obj Object) IsEmpty() bool {
 func (obj Object) Contains(k string) bool {
 	_, ok := obj[k]
 	return ok
-}
-
-func (obj Object) Values() []interface{} {
-	return nil
-}
-
-func (obj Object) String() string {
-	b, _ := json.Marshal(obj)
-	return string(b)
 }
