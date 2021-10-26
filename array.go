@@ -107,7 +107,7 @@ func (arr Array) getObject(idx int) (Object, error) {
 	case map[string]interface{}:
 		return v.(map[string]interface{}), nil
 	}
-	return nil, ErrValueConv{reflect.TypeOf(v).String()}
+	return nil, ErrValueConv{reflect.TypeOf(v).String(), "fluentjson.Object"}
 }
 
 func (arr Array) getArray(idx int) (Array, error) {
@@ -121,7 +121,7 @@ func (arr Array) getArray(idx int) (Array, error) {
 	case []interface{}:
 		return v.([]interface{}), nil
 	}
-	return nil, ErrValueConv{reflect.TypeOf(v).String()}
+	return nil, ErrValueConv{reflect.TypeOf(v).String(), "fluentjson.Array"}
 }
 
 func (arr Array) Len() int {

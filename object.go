@@ -91,7 +91,7 @@ func (obj Object) getObject(k string) (Object, error) {
 	case map[string]interface{}:
 		return v.(map[string]interface{}), nil
 	default:
-		return nil, ErrValueConv{reflect.TypeOf(v).String()}
+		return nil, ErrValueConv{reflect.TypeOf(v).String(), "fluentjson.Object"}
 	}
 }
 
@@ -106,7 +106,7 @@ func (obj Object) getArray(k string) (Array, error) {
 	case []interface{}:
 		return v.([]interface{}), nil
 	}
-	return nil, ErrValueConv{reflect.TypeOf(v).String()}
+	return nil, ErrValueConv{reflect.TypeOf(v).String(), "fluentjson.Array"}
 }
 
 func (obj Object) Len() int {

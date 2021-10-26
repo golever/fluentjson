@@ -17,7 +17,8 @@ type ErrKeyNotFound struct {
 }
 
 type ErrValueConv struct {
-	Type string
+	Sou string
+	Tar string
 }
 
 func (e ErrKeyNotFound) Error() string {
@@ -25,5 +26,5 @@ func (e ErrKeyNotFound) Error() string {
 }
 
 func (e ErrValueConv) Error() string {
-	return fmt.Sprintf("cannot transform into %s", e.Type)
+	return fmt.Sprintf("cannot transform %s into %s", e.Sou, e.Tar)
 }
