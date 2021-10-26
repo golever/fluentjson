@@ -1,9 +1,9 @@
 package fluentjson
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
+	"strconv"
 )
 
 type Object map[string]interface{}
@@ -29,13 +29,24 @@ func (obj Object) Remove(k string) Object {
 func (obj Object) getValue(k string) (interface{}, error) {
 	v, ok := obj[k]
 	if !ok {
-		return nil, nil
+		return nil, ErrKeyNotFound{k}
 	}
 	return v, nil
 }
 
-func (obj Object) getString(k string) (interface{}, error) {
-	return obj, nil
+func (obj Object) getString(k string) (string, error) {
+	v, err := obj.getValue(k)
+	if err != nil {
+		return "", err
+	}
+	switch v.(type) {
+	case string:
+		return v.(string), nil
+	case fmt.Stringer:
+		return (v.(fmt.Stringer)).String(), nil
+	default:
+		return fmt.Sprintf("%v", v), nil
+	}
 }
 
 func (obj Object) getInt(k string) (interface{}, error) {
@@ -50,8 +61,19 @@ func (obj Object) getDouble(k string) (interface{}, error) {
 	return obj, nil
 }
 
-func (obj Object) getBool(k string) (interface{}, error) {
-	return obj, nil
+func (obj Object) getBool(k string) (bool, error) {
+	v, err := obj.getValue(k)
+	if err != nil {
+		return false, err
+	}
+	switch v.(type) {
+	case bool:
+		return v.(bool), nil
+	case string:
+		return strconv.ParseBool(v.(string))
+	default:
+		return false, ErrValueIsNotBool
+	}
 }
 
 func (obj Object) getTime(k string) (interface{}, error) {
@@ -68,8 +90,9 @@ func (obj Object) getObject(k string) (Object, error) {
 		return v.(Object), nil
 	case map[string]interface{}:
 		return v.(map[string]interface{}), nil
+	default:
+		return nil, ErrValueConv{reflect.TypeOf(v).String()}
 	}
-	return nil, errors.New(fmt.Sprintf("Casting error. Interface is %s, not fluentjson.Object", reflect.TypeOf(v)))
 }
 
 func (obj Object) getArray(k string) (Array, error) {
@@ -83,7 +106,7 @@ func (obj Object) getArray(k string) (Array, error) {
 	case []interface{}:
 		return v.([]interface{}), nil
 	}
-	return nil, errors.New(fmt.Sprintf("Casting error. Interface is %s, not fluentjson.Array", reflect.TypeOf(v)))
+	return nil, ErrValueConv{reflect.TypeOf(v).String()}
 }
 
 func (obj Object) Len() int {

@@ -8,20 +8,22 @@ import (
 var (
 	ErrIndexOutOfRange  = errors.New("index out of range")
 	ErrValueIsNotNumber = errors.New("value is not number")
+	ErrValueIsNotBool   = errors.New("value is not bool")
+	ErrValueIsNotTime   = errors.New("value is not time")
 )
 
-type KeyNotFoundError struct {
+type ErrKeyNotFound struct {
 	Key string
 }
 
-func (e KeyNotFoundError) Error() string {
-	return fmt.Sprintf("key[%s] not existed", e.Key)
-}
-
-type ValueTransformTypeError struct {
+type ErrValueConv struct {
 	Type string
 }
 
-func (e ValueTransformTypeError) Error() string {
+func (e ErrKeyNotFound) Error() string {
+	return fmt.Sprintf("key[%s] not existed", e.Key)
+}
+
+func (e ErrValueConv) Error() string {
 	return fmt.Sprintf("cannot transform into %s", e.Type)
 }

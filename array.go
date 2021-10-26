@@ -1,16 +1,12 @@
 package fluentjson
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
+	"strconv"
 )
 
 type Array []interface{}
-
-func NewArray() Array {
-	return Array{}
-}
 
 func (arr Array) Add(v interface{}) Array {
 	return append(arr, v)
@@ -59,7 +55,14 @@ func (arr Array) getString(idx int) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%v", v), nil
+	switch v.(type) {
+	case string:
+		return v.(string), nil
+	case fmt.Stringer:
+		return (v.(fmt.Stringer)).String(), nil
+	default:
+		return fmt.Sprintf("%v", v), nil
+	}
 }
 
 func (arr Array) getInt(idx int) (interface{}, error) {
@@ -74,8 +77,19 @@ func (arr Array) getDouble(idx int) (interface{}, error) {
 	return arr, nil
 }
 
-func (arr Array) getBool(idx int) (interface{}, error) {
-	return arr, nil
+func (arr Array) getBool(idx int) (bool, error) {
+	v, err := arr.getValue(idx)
+	if err != nil {
+		return false, err
+	}
+	switch v.(type) {
+	case bool:
+		return v.(bool), nil
+	case string:
+		return strconv.ParseBool(v.(string))
+	default:
+		return false, ErrValueIsNotBool
+	}
 }
 
 func (arr Array) getTime(idx int) (interface{}, error) {
@@ -93,7 +107,7 @@ func (arr Array) getObject(idx int) (Object, error) {
 	case map[string]interface{}:
 		return v.(map[string]interface{}), nil
 	}
-	return nil, errors.New(fmt.Sprintf("Casting error. Interface is %s, not fluentjson.Object", reflect.TypeOf(v)))
+	return nil, ErrValueConv{reflect.TypeOf(v).String()}
 }
 
 func (arr Array) getArray(idx int) (Array, error) {
@@ -107,7 +121,7 @@ func (arr Array) getArray(idx int) (Array, error) {
 	case []interface{}:
 		return v.([]interface{}), nil
 	}
-	return nil, errors.New(fmt.Sprintf("Casting error. Interface is %s, not fluentjson.Array", reflect.TypeOf(v)))
+	return nil, ErrValueConv{reflect.TypeOf(v).String()}
 }
 
 func (arr Array) Len() int {
